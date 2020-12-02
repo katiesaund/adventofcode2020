@@ -54,5 +54,6 @@ df %>%
   mutate(position1 = str_sub(password, min, min), 
          position2 = str_sub(password, max, max)) %>% 
   filter((letter == position1 & letter != position2) | 
-           letter != position1 & letter == position2)
+           letter != position1 & letter == position2) %>% 
+  nrow()
 
