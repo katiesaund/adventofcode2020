@@ -1,3 +1,4 @@
+# Part 1: 
 # Goal: Find the two entries that sum to 2020 and then multiply those two 
 # numbers together. Return the answer. 
 
@@ -33,3 +34,24 @@ for (i in 1:num_value) {
 }
 
 # What's a more elegant way? 
+
+# Part 2:
+# Goal: Find three numbers in your expense report that meet the same criteria.
+# Same input file, so still working with num_df. 
+
+for (i in 1:num_value) {
+  for (j in 1:num_value) {
+    for (k in 1:num_value) {
+      num1 <- num_df$value[i] 
+      num2 <- num_df$value[j]
+      num3 <- num_df$value[k]
+      if (num1 + num2 + num3 == 2020) {
+        print(paste(num1, num2, num3))
+        print(num1 * num2 * num3)
+      }
+    }
+  }
+}
+
+# This loop within loop within loop is noticeably slow. 
+
