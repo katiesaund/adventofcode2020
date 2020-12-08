@@ -37,7 +37,6 @@ find_valid_holders <- function(bag_name){
 # shiny_gold_3 <- unique(c(find_valid_holders(shiny_gold_2[1]), find_valid_holders(shiny_gold_2[2])))
 # length(unique(c(shiny_gold_1, shiny_gold_2)))
 
-
 find_all_holders <- function(bag_vec) {
   len <- length(unique(bag_vec))
   unique_bags <- NULL
@@ -47,11 +46,6 @@ find_all_holders <- function(bag_vec) {
     unique_bags <- unique(unique_bags)
   }
   return(unique_bags)
-}
-
-return_only_new_bags <- function(old, new){
-  new <- setdiff(new, old)
-  return(new)
 }
 
 recursive_function <- function(bag_name){
@@ -75,5 +69,7 @@ recursive_function <- function(bag_name){
 
 out <- recursive_function("shiny gold bag")
 length(out)
+
+
 
              
