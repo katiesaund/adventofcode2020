@@ -42,3 +42,36 @@ for (i in (preamble_size + 1):nrow(df)) {
     stop(print(paste(df$X1[i], " does not have this property")))
   }
 }
+
+# Part 2
+# Problem statement
+# find a contiguous set of at least two numbers in your list which sum to the 
+# invalid number from step 1. To find the encryption weakness, add together the 
+# smallest and largest number in this contiguous range
+
+part1_num <- df$X1[i]
+
+# Subset dataframe to only potential possible answers
+df <- df[1:(which(df$X1 == part1_num) - 1), ]
+
+find_contiguous_sums <- function(df){
+  lens <- 2:nrow(df)
+  sums <- as.data.frame(matrix(NA, nrow = nrow(df), ncol = nrow(df) - 1))
+  for (j in 1:nrow(df)) {
+    for (k in 1:length(lens)) {
+      sum <- sum(df$X1[j:(j + lens[k] - 1)])
+      sums[j, k] <- sum
+    }
+  }
+  colnames(sums) <- c(1:ncol(sums)) + 1
+  return(sums)
+}
+
+sum_df <- find_contiguous_sums(df)
+# Column names in sum_df are band sizes
+# Rows names are the starting row number
+index <- which(sum_df == part1_num, arr.ind = TRUE) 
+
+continguous_set <- df$X1[index[1]:(index[1] + index[2])]
+encryption_weakness <- sum(min(continguous_set), max(continguous_set))
+encryption_weakness
