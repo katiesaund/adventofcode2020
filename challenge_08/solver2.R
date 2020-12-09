@@ -6,7 +6,7 @@
 # terminates? (the program terminates by attempting to run the instruction below
 # the last instruction in the file.)
 library(tidyverse)
-df <- read_csv("example_input.txt", col_names = FALSE)
+df <- read_csv("puzzle_input.txt", col_names = FALSE)
 df <- df %>% 
   separate(col = X1, into = c("command", "num"), remove = TRUE, sep = " ") %>% 
   mutate(visits = 0, 
@@ -60,7 +60,7 @@ for (j in nop_indices) {
 
 for (k in jmp_indices) {
   temp_df <- df
-  temp_df$command[jmp_indices[k]] <- "nop"
+  temp_df$command[k]  <- "nop"
   try({
     print(k)
     run_program(temp_df)})
