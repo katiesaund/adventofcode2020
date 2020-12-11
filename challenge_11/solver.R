@@ -16,9 +16,15 @@
 # The example answer is 37.
 
 library(tidyverse)
-df <- read_csv("puzzle_input.txt", col_names = FALSE) %>% 
+# df <- read_csv("puzzle_input.txt", col_names = FALSE) %>% 
+#   mutate(X1 = gsub("[.]", "F", X1)) %>% 
+#   separate(col = X1, into = paste0("C", 1:99), sep = 1:99, remove = TRUE)
+
+
+df <- read_csv("example_input.txt", col_names = FALSE) %>% 
   mutate(X1 = gsub("[.]", "F", X1)) %>% 
-  separate(col = X1, into = paste0("C", 1:99), sep = 1:99, remove = TRUE)
+  separate(col = X1, into = paste0("C", 1:10), sep = 1:10, remove = TRUE)
+
 
 count_occupied_adjacent_seats <- function(df, i, j) {
   if (i > 1 & i < nrow(df) & j > 1 & j < ncol(df)) {
@@ -51,21 +57,31 @@ update_seats <- function(df) {
   updated_df <- df
   for (i in 1:nrow(df)) {
     for (j in 1:ncol(df)) {
-      current_spot <- "occupied"
-      if (df[i, j] == "L") { 
-        current_spot <- "empty"
-      } else if (df[i, j] == "F") {
+      if (df[i, j] == "F") {
         current_spot <- "floor"
-      }
-      
-      dat <- df
-      dat[i, j] <- 0
-      num_occupied_adjacent_seats <- count_occupied_adjacent_seats(dat, i, j)
-      
-      if (num_occupied_adjacent_seats == 0 & current_spot == "empty") {
-        updated_df[i, j] <- "#"
-      } else if (num_occupied_adjacent_seats > 3 & current_spot == "occupied") {
-        updated_df[i, j] <- "L"
+        # Floor (.) never changes;
+        # Therefore don't need to count number of occupied adjacent seat
+      } else {
+          if (df[i, j] == "L") { 
+            current_spot <- "empty"
+            # If a seat is empty (L) and there are no occupied seats adjacent to it, 
+            # the seat becomes occupied.
+            } else {
+              current_spot <- "occupied"
+            }
+        dat <- df
+        dat[i, j] <- 0
+        
+        num_occupied_adjacent_seats <- -9999
+        if (current_spot != "floor") {
+          num_occupied_adjacent_seats <- count_occupied_adjacent_seats(dat, i, j)
+        }
+        
+        if (num_occupied_adjacent_seats == 0 & current_spot == "empty") {
+          updated_df[i, j] <- "#"
+        } else if (num_occupied_adjacent_seats > 3 & current_spot == "occupied") {
+          updated_df[i, j] <- "L"
+        }
       }
     }
   }
