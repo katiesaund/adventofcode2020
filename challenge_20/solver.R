@@ -42,8 +42,18 @@ for (i in 1:length(raw_tiles)) {
 }
 
 # Rotate matrix function
+rotate_clockwise <- function(x) t(apply(x, 2, rev))
+# temp <- matrix(letters[1:9], 3, 3)
+# temp90 <- rotate_clockwise(temp)
+# temp180 <- rotate_clockwise(temp90)
+# temp270 <- rotate_clockwise(temp180)
+# temp360 <- rotate_clockwise(temp270)
+# identical(temp360, temp)
+
+rotate_counter <- function(x) { apply(t(x),2, rev)}
 
 # Flip matrix function 
+
 
 # Look for matches between edges
 #   Each tile has 8 unique edges (as is and flipped orientation)
@@ -84,7 +94,7 @@ for (i in 1:num_tiles) {
   for (j in 1:num_tiles) {
     if (i < j) {
       match_count <- 0 
-      for (k in 1:8) {
+      for (k in 1:8) { # 8 is the number of rows in each tile_edge_list
         for (l in 1:8) {
           
           if (identical(tile_edge_list[[i]][k, ], tile_edge_list[[j]][l, ])) {
