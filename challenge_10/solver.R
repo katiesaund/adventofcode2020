@@ -39,9 +39,10 @@ diff <- abs(vec[1:length(vec) - 1] - vec[2:length(vec)])
 potentially_deletable_nums <- vec[c(FALSE, diff < 3)]
 len <- length(potentially_deletable_nums)
 
-empty_df <- matrix(NA, nrow = 10000000, ncol = len)
+empty_df <- matrix(NA, nrow = 100000000, ncol = len)
 to_be_deleted <- matrix(NA, nrow = 0, ncol = len)
 for (i in 1:len) {
+  print(i)
   combo_temp <- t(combn(potentially_deletable_nums, i))
   current_df <- empty_df
   current_df[1:nrow(combo_temp), 1:ncol(combo_temp)] <- combo_temp
