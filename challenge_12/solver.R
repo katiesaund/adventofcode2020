@@ -29,7 +29,8 @@
 #  distance between that location and the ship's starting position?
 
 library(tidyverse)
-df <- read_csv("example_input.txt", col_names = FALSE)
+options(scipen = 9999999)
+df <- read_csv("puzzle_input.txt", col_names = FALSE)
 df <- as.data.frame(cbind(gsub(pattern = "[0-9]+", replacement = "", x = df$X1), 
             as.numeric(str_split(df$X1, "[A-Z]", simplify = TRUE)[, 2])))
 colnames(df) <- c("direction", "value")
@@ -115,6 +116,127 @@ calculate_manhattan_distance <- function(dat) {
 }
 
 cardinal_df <- convert_to_cardinal(df)
-man_dist <- calculate_manhattan_distance(cardinal_df)
-  
+man_dist1 <- calculate_manhattan_distance(cardinal_df)
+man_dist1
 
+
+# Part 2 -----------------------------------------------------------------------
+# Action N means to move the waypoint north by the given value.
+# Action S means to move the waypoint south by the given value.
+# Action E means to move the waypoint east by the given value.
+# Action W means to move the waypoint west by the given value.
+# Action L means to rotate the waypoint around the ship left (counter-clockwise) 
+#     the given number of degrees.
+# Action R means to rotate the waypoint around the ship right (clockwise) the
+#     given number of degrees.
+# Action F means to move forward to the waypoint a number of times equal to the
+#     given value.
+# Figure out where the navigation instructions actually lead. What is the 
+# Manhattan distance between that location and the ship's starting position?
+
+# So only F moves the ship
+# N, S, W, E, L, R moves the waypoint.
+# Left = counter-clockwise
+# Right = clockwise
+
+# Start positions
+waypoint_ew <- -10 # positive==west, negative==east
+waypoint_ns <- 1 # positive==north, negative==south
+boat_ew <- 0
+boat_ns <- 0
+
+for (i in 1:nrow(df)) {
+  new_ew_dir <- "W"
+  new_ns_dir <- "N"
+  if (waypoint_ew < 0) {
+    new_ew_dir <- "E"
+  } 
+  if (waypoint_ns < 0) {
+    new_ns_dir <- "S"
+  } 
+  
+  if (df$direction[i] == "F") {
+    # Move the boat
+    boat_ew <- boat_ew + df$value[i] * waypoint_ew
+    boat_ns <- boat_ns + df$value[i] * waypoint_ns
+  } 
+    # Move the way point
+    else if (df$direction[i] == "N") {
+    waypoint_ns <- waypoint_ns + df$value[i]
+  } else if (df$direction[i] == "S") {
+    waypoint_ns <- waypoint_ns - df$value[i]
+  } else if (df$direction[i] == "W") {
+    waypoint_ew <- waypoint_ew + df$value[i]
+  } else if (df$direction[i] ==  "E") {
+    waypoint_ew <- waypoint_ew - df$value[i]
+  } 
+    # Rotate the boat direction
+    else if (df$direction[i] %in% c("R", "L")) {
+      if (waypoint_ew >= 0) {
+        new_ew_dir <- change_direction_df %>% 
+          filter(rot_dir == df$direction[i], start_dir == "W", rot_num == df$value[i]) %>% 
+          pull(end_dir)
+      } else if (waypoint_ew < 0) {
+        new_ew_dir <- change_direction_df %>% 
+          filter(rot_dir == df$direction[i], start_dir == "E", rot_num == df$value[i]) %>% 
+          pull(end_dir)
+      }
+      
+      if (waypoint_ns >= 0) {
+        new_ns_dir <- change_direction_df %>% 
+          filter(rot_dir == df$direction[i], start_dir == "N", rot_num == df$value[i]) %>% 
+          pull(end_dir)
+      } else if (waypoint_ns < 0) {
+        new_ns_dir <- change_direction_df %>% 
+          filter(rot_dir == df$direction[i], start_dir == "S", rot_num == df$value[i]) %>% 
+          pull(end_dir)
+      }
+  
+      # 180 turns ----- 
+      if (new_ew_dir == "W") {
+        waypoint_ew <- abs(waypoint_ew) 
+      } else if (new_ew_dir == "E") {
+        if (waypoint_ew > 0) {
+          waypoint_ew <- -waypoint_ew
+        }
+      }
+      
+      if (new_ns_dir == "N") {
+        waypoint_ns <- abs(waypoint_ns) 
+      } else if (new_ns_dir == "S") {
+        if (waypoint_ns > 0) {
+          waypoint_ns <- -waypoint_ns
+        }
+      } 
+      
+      # 270 or 90 degree turns ---- 
+      old_ew_waypoint <- waypoint_ew
+      old_ns_waypoint <- waypoint_ns
+      
+      if (new_ns_dir %in% c("E", "W")) {
+        if (new_ns_dir == "W" & waypoint_ns >= 0) {     # N -> W --   
+          waypoint_ew <- old_ns_waypoint
+        } else if (new_ns_dir == "W" & old_ns_waypoint < 0) { # S -> W
+          waypoint_ew <- -old_ns_waypoint
+        } else if (new_ns_dir == "E" & old_ns_waypoint >= 0) { # N -> E
+          waypoint_ew <- -old_ns_waypoint
+        } else if (new_ns_dir == "E" & old_ns_waypoint < 0) { # S -> E
+          waypoint_ew <- old_ns_waypoint
+        } 
+      }
+      
+      if (new_ew_dir %in% c("N", "S")) {
+        if (new_ew_dir == "N" & old_ew_waypoint >= 0) {     # W -> N
+          waypoint_ns <- old_ew_waypoint
+        } else if (new_ew_dir == "N" & old_ew_waypoint < 0) { # E -> N
+          waypoint_ns <- -old_ew_waypoint
+        } else if (new_ew_dir == "S" & old_ew_waypoint >= 0) { # W -> S
+          waypoint_ns <- -old_ew_waypoint
+        } else if (new_ew_dir == "S" & old_ew_waypoint < 0) { # E -> S
+          waypoint_ns <- old_ew_waypoint
+        } 
+      }
+  }
+}
+man_dist <- sum(abs(boat_ew), abs(boat_ns))
+man_dist
